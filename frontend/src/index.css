@@ -2,9 +2,30 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/geist";
-
+@plugin "@tailwindcss/typography";
 @custom-variant dark (&:is(.dark *));
 
+.prose code {
+  background-color: var(--muted);
+  color: var(--ring); 
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.375rem;
+  font-family: monospace;
+  font-size: 0.875em;
+  font-weight: 500;
+}
+
+.prose code::before,
+.prose code::after {
+  content: none !important;
+}
+
+.prose pre code {
+  background-color: transparent;
+  color: inherit;
+  padding: 0;
+  border-radius: 0;
+}
 :root {
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);

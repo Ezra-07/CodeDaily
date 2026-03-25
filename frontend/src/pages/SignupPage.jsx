@@ -7,7 +7,7 @@ import { Input } from "../components/ui/input.jsx";
 import { Label } from "../components/ui/label.jsx";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card.jsx";
 import { Alert, AlertDescription } from "../components/ui/alert.jsx";
-import { Loader2 } from "lucide-react";
+import { Loader2, Eye, EyeOff } from "lucide-react";
 
 export default function SignupPage() {
   const [formData, setFormData] = useState({
@@ -17,6 +17,8 @@ export default function SignupPage() {
   });
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
   const { setAuthUser } = useAuthStore();
   const navigate = useNavigate();
 
@@ -108,16 +110,30 @@ export default function SignupPage() {
 
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                placeholder="Create a password"
-                value={formData.password}
-                onChange={handleChange}
-                required
-                disabled={isLoading}
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Create a password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  required
+                  disabled={isLoading}
+                  className="pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                >
+                  {showPassword ? (
+                    <EyeOff size={18} />
+                  ) : (
+                    <Eye size={18} />
+                  )}
+                </button>
+              </div>
             </div>
 
             <Button

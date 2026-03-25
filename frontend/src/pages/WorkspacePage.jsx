@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Editor from "@monaco-editor/react";
+import ReactMarkdown from 'react-markdown';
 import api from "../lib/api.js";
 import { useTheme } from "../components/ThemeProvider.jsx";
 import { Button } from "../components/ui/button.jsx";
@@ -47,7 +48,6 @@ export default function WorkspacePage() {
   const [testCaseOutputs, setTestCaseOutputs] = useState({});
   const codeSaveTimeoutRef = useRef(null);
 
-  // Save code to localStorage whenever it changes (debounced)
   useEffect(() => {
     if (codeSaveTimeoutRef.current) {
       clearTimeout(codeSaveTimeoutRef.current);
@@ -64,7 +64,6 @@ export default function WorkspacePage() {
     };
   }, [code, slug]);
 
-  // Save custom test cases to localStorage
   useEffect(() => {
     if (slug && customTestCases) {
       localStorage.setItem(`custom_test_cases_${slug}`, JSON.stringify(customTestCases));
@@ -123,7 +122,6 @@ export default function WorkspacePage() {
     }
   };
 
-  // Fetch problem data
   useEffect(() => {
     const fetchProblem = async () => {
       if (!slug) {
@@ -153,7 +151,6 @@ export default function WorkspacePage() {
     fetchProblem();
   }, [slug]);
 
-  // Fetch leaderboard when tab is active
   useEffect(() => {
     const fetchLeaderboard = async () => {
       if (!problem?.id || activeTab !== "leaderboard") return;
@@ -205,7 +202,7 @@ export default function WorkspacePage() {
     };
 
     poll();
-  }, []);
+  }, [addToast]);
 
   const handleSubmit = async () => {
     if (!problem) return;
@@ -288,10 +285,8 @@ export default function WorkspacePage() {
     <div className="h-[calc(100vh-3.5rem)] overflow-hidden">
       <ResizablePanelGroup orientation="horizontal" className="h-full">
 
-        {/* Left Panel - Tabs for Description and Leaderboard */}
         <ResizablePanel defaultSize={40} minSize={30}>
           <div className="h-full flex flex-col bg-card">
-            {/* Tab Headers */}
             <div className="flex border-b border-border">
               <button
                 onClick={() => setActiveTab("description")}
@@ -321,7 +316,6 @@ export default function WorkspacePage() {
               </button>
             </div>
 
-            {/* Tab Content */}
             <div className="flex-1 overflow-y-auto overflow-x-hidden no-scrollbar p-6">
               {activeTab === "description" ? (
                 <div>
@@ -339,7 +333,6 @@ export default function WorkspacePage() {
                     </span>
                   </div>
 
-                  {/* Problem Stats */}
                   {problem.stats && (
                     <div className="flex gap-4 mb-6 text-sm">
                       <div className="flex items-center gap-2">
@@ -361,8 +354,8 @@ export default function WorkspacePage() {
                     </div>
                   )}
 
-                  <div className="text-muted-foreground whitespace-pre-wrap mb-6">
-                    {problem.description}
+                  <div className="prose prose-invert max-w-none prose-slate mb-6">
+                    <ReactMarkdown>{problem.description}</ReactMarkdown>
                   </div>
 
                   {problem.testCases && problem.testCases.length > 0 && (
@@ -445,16 +438,12 @@ export default function WorkspacePage() {
 
         <ResizableHandle withHandle className="bg-border/70 hover:bg-[#22c55e]/50 transition-colors" />
 
-        {/* Right Panel - Editor + Test Cases */}
         <ResizablePanel defaultSize={60} minSize={40}>
-          {/* Key fix: Explicitly give the inner ResizablePanelGroup a height of full */}
           <ResizablePanelGroup orientation="vertical" className="h-full">
 
-            {/* Top: Editor */}
             <ResizablePanel defaultSize={70} minSize={20}>
               <div className="h-full flex flex-col bg-card overflow-hidden">
 
-                {/* Editor Header - Added shrink-0 */}
                 <div className="shrink-0 flex items-center justify-between gap-2 px-3 py-2 border-b border-border overflow-hidden">
                   <div className="flex min-w-0 items-center gap-2 overflow-hidden">
                     <span className="text-sm font-medium px-2 truncate">main.cpp</span>
@@ -529,7 +518,6 @@ export default function WorkspacePage() {
                   </div>
                 </div>
 
-                {/* Monaco Editor Container - min-h-0 is absolutely required here */}
                 <div className="flex-1 relative min-h-0">
                   <div className="absolute inset-0">
                     <Editor
@@ -560,11 +548,9 @@ export default function WorkspacePage() {
 
             <ResizableHandle withHandle className="bg-border/70 hover:bg-[#22c55e]/50 transition-colors" />
 
-            {/* Bottom: Test Cases Panel */}
             <ResizablePanel defaultSize={30} minSize={20}>
               <div className="h-full flex flex-col bg-card border-t border-border overflow-hidden">
 
-                {/* Panel Header - Added shrink-0 */}
                 <div className="shrink-0 flex items-center justify-between px-4 py-3 border-b border-border bg-muted/30">
                   <div className="flex items-center gap-4">
                     <span className="text-sm font-semibold text-foreground">Test Cases</span>
@@ -580,7 +566,6 @@ export default function WorkspacePage() {
                         </span>
                       )}
                     </div>
-                    {/* Run Results Summary */}
                     {runResults && (
                       <div className="flex items-center gap-2 ml-2 pl-3 border-l border-border">
                         {runResults.status === "Accepted" ? (
@@ -614,17 +599,14 @@ export default function WorkspacePage() {
                   </Button>
                 </div>
 
-                {/* Compilation Error Message - Added shrink-0 */}
                 {runResults?.status === "Compilation Error" && runResults.detail && (
                   <div className="shrink-0 px-4 py-2 bg-red-500/10 border-b border-red-500/20">
                     <p className="text-xs text-red-500 font-mono">{runResults.detail}</p>
                   </div>
                 )}
 
-                {/* Scrollable Content - Added min-h-0 so the panel can shrink */}
                 <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden no-scrollbar">
 
-                  {/* Submission Result */}
                   {submissionResult && (
                     <div className="mx-4 mt-4 border border-border rounded-lg bg-card">
                       <CardHeader className="py-3">
@@ -671,7 +653,6 @@ export default function WorkspacePage() {
                     </div>
                   )}
 
-                  {/* Custom Test Cases */}
                   {customTestCases.length > 0 && (
                     <div className="p-4 border-b border-border bg-[#22c55e]/5">
                       <h4 className="text-xs font-semibold text-[#22c55e] mb-3 flex items-center gap-2">
@@ -681,7 +662,6 @@ export default function WorkspacePage() {
                       <div className="space-y-3">
                         {customTestCases.map((tc, index) => (
                           <div key={`custom-${index}`} className="bg-card rounded-lg border border-border overflow-hidden">
-                            {/* Custom TC Header */}
                             <div className="flex items-center justify-between px-3 py-2 bg-muted/50 border-b border-border">
                               <span className="text-xs font-medium text-foreground">Custom Input {index + 1}</span>
                               <div className="flex items-center gap-1">
@@ -702,7 +682,6 @@ export default function WorkspacePage() {
                               </div>
                             </div>
 
-                            {/* Input Area */}
                             <div className="p-3 space-y-3">
                               <div>
                                 <label className="text-[10px] uppercase tracking-wide text-muted-foreground font-medium mb-1.5 block">
@@ -732,7 +711,6 @@ export default function WorkspacePage() {
                                 Run Code
                               </Button>
 
-                              {/* Output Display */}
                               {testCaseOutputs[index] && (
                                 <div className="mt-2">
                                   <label className="text-[10px] uppercase tracking-wide text-muted-foreground font-medium mb-1.5 block">
@@ -752,7 +730,6 @@ export default function WorkspacePage() {
                     </div>
                   )}
 
-                  {/* Provided Test Cases */}
                   {problem?.testCases && problem.testCases.filter(tc => !tc.isHidden).length > 0 && (
                     <div className="p-4">
                       <h4 className="text-xs font-semibold text-muted-foreground mb-3 flex items-center gap-2">
@@ -772,7 +749,6 @@ export default function WorkspacePage() {
                                     : "bg-card border-border"
                                 }`}
                             >
-                              {/* TC Header */}
                               <div className={`flex items-center justify-between px-3 py-2 border-b ${runResult?.passed
                                   ? "border-[#22c55e]/20 bg-[#22c55e]/10"
                                   : runResult
@@ -793,7 +769,6 @@ export default function WorkspacePage() {
                                 ) : null}
                               </div>
 
-                              {/* TC Content */}
                               <div className="p-3 space-y-2">
                                 <div className="grid grid-cols-2 gap-2">
                                   <div>
