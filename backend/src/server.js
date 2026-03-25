@@ -10,7 +10,7 @@ import solutionsRoutes from "./routes/solutions.routes.js";
 import discussionsRoutes from "./routes/discussions.routes.js";
 
 const app = express();
-const port = process.env["PORT"] || 3000;
+const port = process.env["PORT"] || 10000;
 
 app.use(cors({
   origin: "http://localhost:5173",
