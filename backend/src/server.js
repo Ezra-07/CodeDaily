@@ -10,7 +10,7 @@ import solutionsRoutes from "./routes/solutions.routes.js";
 import discussionsRoutes from "./routes/discussions.routes.js";
 
 const app = express();
-const port = process.env["PORT"] || 10000;
+const port = process.env.PORT || 10000;
 
 app.use(cors({
   origin: "http://localhost:5173",
@@ -24,6 +24,6 @@ app.use("/api/v1/submission", submissionRoutes);
 app.use("/api/v1/solutions", solutionsRoutes);
 app.use("/api/v1/discussions", discussionsRoutes);
 
-app.listen(port, () => {
-  console.log(`server running on port ${port}`);
+app.listen(port, '0.0.0.0', () => {
+  console.log(`Server running on port ${port}`);
 });
