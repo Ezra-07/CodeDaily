@@ -47,5 +47,16 @@ export const auth = betterAuth({
                 }
             }
         }
+    },
+    advanced: {
+        cookies: {
+            state: {
+            attributes: {
+                sameSite: "none",
+                secure: true,
+            },
+            },
+        },
+        useSecureCookies: true,
     }
 });
