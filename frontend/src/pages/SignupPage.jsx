@@ -54,7 +54,7 @@ export default function SignupPage() {
     
     const { error } = await authClient.signIn.social({
       provider: provider,
-      callbackURL: "http://localhost:5173/dashboard", 
+      callbackURL: `${window.location.origin}/dashboard`, 
     });
 
     if (error) {
