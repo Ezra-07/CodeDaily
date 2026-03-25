@@ -1,15 +1,14 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
-import {prisma} from "./prisma.js";
+import { prisma } from "./prisma.js";
 
 export const auth = betterAuth({
-    baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000", 
+    baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
+    basePath: "/api/v1/auth",
     database: prismaAdapter(prisma, {
-        provider: "postgresql", 
+        provider: "postgresql",
     }),
-    advanced: {
-        defaultBasePath: "/api/v1/auth" 
-    },
+    trustedOrigins: ["http://localhost:5173"],
     socialProviders: {
         google: {
             clientId: process.env.GOOGLE_CLIENT_ID,
@@ -20,13 +19,32 @@ export const auth = betterAuth({
             clientSecret: process.env.GITHUB_CLIENT_SECRET,
         }
     },
-    emailAndPassword: {  
-        enabled: true 
+    emailAndPassword: {
+        enabled: true
     },
     user: {
         additionalFields: {
             username: { type: "string" },
             role: { type: "string" }
+        }
+    },
+    databaseHooks: {
+        user: {
+            create: {
+                before: async (user) => {
+                    const baseUsername = user.username || user.email.split('@')[0];
+                    const randomSuffix = Math.floor(Math.random() * 10000);
+                    const username = `${baseUsername}_${randomSuffix}`;
+
+                    return {
+                        data: {
+                            ...user,
+                            username,
+                            role: user.role || "USER",
+                        }
+                    };
+                }
+            }
         }
     }
 });
