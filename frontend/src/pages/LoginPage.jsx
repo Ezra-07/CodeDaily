@@ -45,7 +45,7 @@ export default function LoginPage() {
     
     const { error } = await authClient.signIn.social({
       provider: provider,
-      callbackURL: `${window.location.origin}/dashboard`, 
+      callbackURL: "/dashboard", 
     });
 
     if (error) {
