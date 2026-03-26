@@ -49,14 +49,20 @@ export const auth = betterAuth({
         }
     },
     advanced: {
+    useSecureCookies: true,
         cookies: {
-            state: {
-            attributes: {
-                sameSite: "none",
-                secure: true,
+            session_token: {
+                attributes: { sameSite: "none", secure: true, httpOnly: true },
             },
+            state: {
+                attributes: { sameSite: "none", secure: true },
+            },
+            pkce_code_verifier: {
+                attributes: { sameSite: "none", secure: true },
+            },
+            nonce: {
+                attributes: { sameSite: "none", secure: true },
             },
         },
-        useSecureCookies: true,
-    }
+    },
 });
