@@ -11,10 +11,9 @@ import Redis from "ioredis";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const execPromise = util.promisify(exec);
-const connection = new Redis({
-  host: '127.0.0.1',
-  port: 6379,
+const connection = new Redis(process.env.REDIS_URL, {
   maxRetriesPerRequest: null,
+  tls: {},
 });
 const seccompPath = path.join(__dirname, "seccomp-profile.json");
 
