@@ -1,11 +1,45 @@
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { useAuthStore } from "../store/useAuthStore.js";
+import { useToast } from "../components/ToastProvider.jsx";
 import { Button } from "../components/ui/button.jsx";
-import { ArrowRight, Zap, Shield, Clock } from "lucide-react";
+import { ArrowRight, Zap, Shield, Clock, Server } from "lucide-react";
+import api from "../lib/api.js";
 
 export default function LandingPage() {
   const { authUser } = useAuthStore();
+  const { addToast } = useToast();
   const navigate = useNavigate();
+  const [serverStatus, setServerStatus] = useState("checking");
+
+  useEffect(() => {
+    const checkServerWarmup = async () => {
+      const startTime = Date.now();
+      try {
+        await api.get("/problems", { timeout: 30000 });
+        const elapsed = Date.now() - startTime;
+        if (elapsed > 3000) {
+          setServerStatus("slow");
+          addToast(
+            "Server was sleeping (free tier). It's now awake and ready!",
+            "info",
+            5000
+          );
+        } else {
+          setServerStatus("live");
+        }
+      } catch {
+        setServerStatus("error");
+        addToast(
+          "Server is warming up... Please wait a few seconds for the free Render server to start.",
+          "warning",
+          8000
+        );
+      }
+    };
+
+    checkServerWarmup();
+  }, [addToast]);
 
   const handleCTA = () => {
     if (authUser) {
@@ -20,6 +54,16 @@ export default function LandingPage() {
       {/* Hero Section */}
       <section className="flex-1 flex flex-col items-center justify-center px-4 py-20 text-center">
         <div className="max-w-3xl space-y-8">
+          {/* Server Status Badge*/}
+          {serverStatus !== "live" && (
+            <div className="inline-flex items-center rounded-full border border-yellow-500/30 bg-yellow-500/10 px-3 py-1 text-sm text-yellow-500">
+              <Server className="mr-2 h-3 w-3" />
+              {serverStatus === "checking"
+                ? "Checking server status..."
+                : "Free tier server - may take 30s to wake up"}
+            </div>
+          )}
+
           {/* Badge */}
           <div className="inline-flex items-center rounded-full border border-[#22c55e]/30 bg-[#22c55e]/10 px-3 py-1 text-sm text-[#22c55e]">
             <Zap className="mr-2 h-3 w-3" />
