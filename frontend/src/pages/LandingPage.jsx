@@ -1,45 +1,22 @@
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
 import { useAuthStore } from "../store/useAuthStore.js";
-import { useToast } from "../components/ToastProvider.jsx";
 import { Button } from "../components/ui/button.jsx";
-import { ArrowRight, Zap, Shield, Clock, Server } from "lucide-react";
+import { ArrowRight, Zap, Shield, Clock } from "lucide-react";
 import api from "../lib/api.js";
+
+let warmupFired = false;
+function warmupServer() {
+  if (warmupFired) return;
+  warmupFired = true;
+  api.get("/problems", { timeout: 30000 }).catch(() => {
+
+  });
+}
+warmupServer();
 
 export default function LandingPage() {
   const { authUser } = useAuthStore();
-  const { addToast } = useToast();
   const navigate = useNavigate();
-  const [serverStatus, setServerStatus] = useState("checking");
-
-  useEffect(() => {
-    const checkServerWarmup = async () => {
-      const startTime = Date.now();
-      try {
-        await api.get("/problems", { timeout: 30000 });
-        const elapsed = Date.now() - startTime;
-        if (elapsed > 3000) {
-          setServerStatus("slow");
-          addToast(
-            "Server was sleeping (free tier). It's now awake and ready!",
-            "info",
-            5000
-          );
-        } else {
-          setServerStatus("live");
-        }
-      } catch {
-        setServerStatus("error");
-        addToast(
-          "Server is warming up... Please wait a few seconds for the free Render server to start.",
-          "warning",
-          8000
-        );
-      }
-    };
-
-    checkServerWarmup();
-  }, [addToast]);
 
   const handleCTA = () => {
     if (authUser) {
@@ -54,16 +31,6 @@ export default function LandingPage() {
       {/* Hero Section */}
       <section className="flex-1 flex flex-col items-center justify-center px-4 py-20 text-center">
         <div className="max-w-3xl space-y-8">
-          {/* Server Status Badge*/}
-          {serverStatus !== "live" && (
-            <div className="inline-flex items-center rounded-full border border-yellow-500/30 bg-yellow-500/10 px-3 py-1 text-sm text-yellow-500">
-              <Server className="mr-2 h-3 w-3" />
-              {serverStatus === "checking"
-                ? "Checking server status..."
-                : "Free tier server - may take 30s to wake up"}
-            </div>
-          )}
-
           {/* Badge */}
           <div className="inline-flex items-center rounded-full border border-[#22c55e]/30 bg-[#22c55e]/10 px-3 py-1 text-sm text-[#22c55e]">
             <Zap className="mr-2 h-3 w-3" />
@@ -78,8 +45,9 @@ export default function LandingPage() {
 
           {/* Subheadline */}
           <p className="mx-auto max-w-2xl text-lg text-muted-foreground sm:text-xl">
-            Daily challenges, real-time Docker judging, zero friction.
-            Practice algorithms, track your progress, and compete with developers worldwide.
+            Daily challenges, real-time Docker judging, zero friction. Practice
+            algorithms, track your progress, and compete with developers
+            worldwide.
           </p>
 
           {/* CTA Button */}
@@ -118,7 +86,8 @@ export default function LandingPage() {
               </div>
               <h3 className="mb-2 font-semibold">Async Execution</h3>
               <p className="text-sm text-muted-foreground">
-                Built on a high-performance Redis and BullMQ queue to handle concurrent submissions without dropping requests.
+                Built on a high-performance Redis and BullMQ queue to handle
+                concurrent submissions without dropping requests.
               </p>
             </div>
             <div className="rounded-lg border border-border bg-card p-6">
@@ -127,7 +96,8 @@ export default function LandingPage() {
               </div>
               <h3 className="mb-2 font-semibold">Isolated Sandbox</h3>
               <p className="text-sm text-muted-foreground">
-                Every submission runs in a heavily restricted, network-isolated container for maximum security.
+                Every submission runs in a heavily restricted, network-isolated
+                container for maximum security.
               </p>
             </div>
             <div className="rounded-lg border border-border bg-card p-6">
@@ -136,7 +106,8 @@ export default function LandingPage() {
               </div>
               <h3 className="mb-2 font-semibold">Track Progress</h3>
               <p className="text-sm text-muted-foreground">
-                Monitor your solve rate, execution times, and compete on the leaderboard.
+                Monitor your solve rate, execution times, and compete on the
+                leaderboard.
               </p>
             </div>
           </div>
