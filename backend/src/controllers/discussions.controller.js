@@ -34,7 +34,8 @@ export const createDiscussion = async (req, res) => {
   }
 
   const { problemId, content } = parseResult.data;
-  const userId = req.user.userId;
+  console.log(req.user);
+  const userId = req.user.id;
 
   try {
     // Verify user has attempted this problem
