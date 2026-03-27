@@ -24,6 +24,9 @@ app.use("/api/v1/submission", submissionRoutes);
 app.use("/api/v1/solutions", solutionsRoutes);
 app.use("/api/v1/discussions", discussionsRoutes);
 
+app.get("/api/v1/health",(req,res)=>{
+  
+});
 app.listen(port, '0.0.0.0', () => {
   console.log(`Server running on port ${port}`);
 });
