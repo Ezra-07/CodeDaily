@@ -31,7 +31,7 @@ export const createSolutionPost = async (req, res) => {
     return res.status(400).json({ error: parseResult.error.errors });
   }
   const { problemId, title, explanation, code, language } = parseResult.data;
-  const userId = session.user.userId;
+  const userId = req.user.userId;
 
   try {
     // Check if user has attempted this problem
