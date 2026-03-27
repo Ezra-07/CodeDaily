@@ -354,7 +354,7 @@ export default function WorkspacePage() {
                     </div>
                   )}
 
-                  <div className="prose prose-invert max-w-none prose-slate mb-6">
+                  <div className="prose dark:prose-invert max-w-none prose-slate mb-6">
                     <ReactMarkdown>{problem.description}</ReactMarkdown>
                   </div>
 

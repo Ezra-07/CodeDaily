@@ -71,6 +71,7 @@ async function executeSingleTestCase(dir) {
       END=\\$(date +%s%3N); \
       cat /tmp/time_output.txt >&2; \
       echo \\"ELAPSED_MS=\\$((END - START))\\" >&2; \
+      echo \\"EXIT_CODE=\\$EXIT_CODE\\" >&2; \
       exit \\$EXIT_CODE"`;
 
   return execPromise(runCommand, { timeout: 30000 });
@@ -142,14 +143,17 @@ async function runSandboxedTestSuite(jobId, userCode, testCases, mode) {
         const errorStderr = err.stderr || "";
         metrics = getResourceMetrics(errorStderr, metrics);
 
+        const exitCodeMatch = errorStderr.match(/EXIT_CODE=(\d+)/);
+        const exitCode = exitCodeMatch ? parseInt(exitCodeMatch[1]) : null;
+
         let failureStatus = "Runtime Error";
         let detail = errorStderr.trim() || err.message || "Process crashed";
 
         if (metrics.peakMemoryKb >= 250000) {
           failureStatus = "Memory Limit Exceeded";
-        } else if (err.code === 124) {
+        } else if (exitCode === 124) {
           failureStatus = "Time Limit Exceeded";
-          metrics.peakTimeMs = Math.max(metrics.peakTimeMs, 2000);
+          metrics.peakTimeMs = 2000;
         } else if (err.killed) {
           failureStatus = "System Error: Container hanging";
         }
@@ -269,7 +273,7 @@ new Worker(
       throw err;
     }
   },
-  { connection: connection },
+  { connection, drainDelay: 300 },
 );
 
 new Worker(
@@ -291,7 +295,7 @@ new Worker(
 
     return runSandboxedTestSuite(job.id, code, testCases || [], "run");
   },
-  { connection: connection },
+  { connection, drainDelay: 300 },
 );
 
 console.log(
