@@ -295,7 +295,14 @@ new Worker(
 
     return runSandboxedTestSuite(job.id, code, testCases || [], "run");
   },
-  { connection, drainDelay: 300 },
+  { 
+    connection, drainDelay: 300,
+      drainDelay: 300,           
+    stalledInterval: 60000,    
+    lockDuration: 60000,       
+    lockRenewTime: 30000,    
+    concurrency: 1,   
+  },
 );
 
 console.log(
