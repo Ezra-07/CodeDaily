@@ -3,6 +3,8 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './store/useAuthStore';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { ThemeProvider } from './components/ThemeProvider';
+import { useToast } from './components/ToastProvider.jsx';
+import api from './lib/api.js';
 
 import LandingPage from './pages/LandingPage.jsx';
 import LoginPage from './pages/LoginPage';
@@ -37,10 +39,50 @@ const AdminRoute = ({ children }) => {
 
 function App() {
   const { checkAuth, authUser } = useAuthStore();
+  const { addToast } = useToast();
 
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
+
+  useEffect(() => {
+    let cancelled = false;
+    let wakeToastShown = false;
+
+    const showWakeToastTimer = setTimeout(() => {
+      if (cancelled) return;
+      wakeToastShown = true;
+      addToast(
+        "Starting the backend (Render free tier cold start). First load can take ~30–60 seconds — the server isn’t down.",
+        "info",
+        12000,
+      );
+    }, 800);
+
+    (async () => {
+      try {
+        await api.get("/health");
+        if (cancelled) return;
+        if (wakeToastShown) {
+          addToast("Backend is awake. You’re good to go.", "success", 2500);
+        }
+      } catch {
+        if (cancelled) return;
+        addToast(
+          "Backend is still starting up (Render free tier). Give it a moment and try again.",
+          "warning",
+          8000,
+        );
+      } finally {
+        clearTimeout(showWakeToastTimer);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      clearTimeout(showWakeToastTimer);
+    };
+  }, [addToast]);
 
   return (
     <ThemeProvider defaultTheme="dark" storageKey="codedaily-theme">
