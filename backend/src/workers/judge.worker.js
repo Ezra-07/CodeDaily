@@ -47,7 +47,7 @@ async function compileCode(dir, jobId) {
     console.log(`[Compile Error] Job ${jobId}:`, err.message);
     return {
       status: "Compilation Error",
-      detail: err.stderr?.trim() || err.message || "Unknown compilation error",
+      detail: err.stdout?.trim() || err.message || "Unknown compilation error",
     };
   }
 }
@@ -219,6 +219,15 @@ async function runSandboxedTestSuite(jobId, userCode, testCases, mode) {
   }
 }
 
+const workerConfig = {
+  connection,
+  drainDelay: 300,
+  stalledInterval: 300000,
+  lockDuration: 60000,
+  lockRenewTime: 30000,
+  concurrency: 1,
+};
+
 new Worker(
   "submission-queue",
   async (job) => {
@@ -273,7 +282,7 @@ new Worker(
       throw err;
     }
   },
-  { connection, drainDelay: 300 },
+  workerConfig,
 );
 
 new Worker(
@@ -295,14 +304,7 @@ new Worker(
 
     return runSandboxedTestSuite(job.id, code, testCases || [], "run");
   },
-  { 
-    connection, drainDelay: 300,
-      drainDelay: 300,           
-    stalledInterval: 60000,    
-    lockDuration: 60000,       
-    lockRenewTime: 30000,    
-    concurrency: 1,   
-  },
+  workerConfig,
 );
 
 console.log(
