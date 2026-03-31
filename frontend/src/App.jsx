@@ -54,7 +54,7 @@ function App() {
       wakeToastShown = true;
       addToast(
         "Starting the backend (Render free tier cold start). First load can take ~30–60 seconds — the server isn’t down.",
-        "info",
+        "warning",
         12000,
       );
     }, 800);
