@@ -5,12 +5,22 @@ export const getProblemDiscussions = async (req, res) => {
   const { problemId } = req.params;
 
   try {
+    if (!req.user) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    const hasAttempted = await prisma.submission.findFirst({
+      where: { userId: req.user.id, problemId },
+    });
+
+    if (!hasAttempted) {
+      return res.status(403).json({ error: "Attempt the problem to unlock discussions" });
+    }
+
     const discussions = await prisma.discussion.findMany({
       where: { problemId },
       include: {
-        user: {
-          select: { username: true },
-        },
+        user: { select: { username: true } },
       },
       orderBy: { createdAt: "desc" },
     });

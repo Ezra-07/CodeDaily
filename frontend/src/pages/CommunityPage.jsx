@@ -31,35 +31,37 @@ export default function CommunityPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch problem details
+        //get current problem
         const problemRes = await api.get(`/problems/${slug}`);
-        setProblem(problemRes.data?.problem);
+        const fetchedProblem = problemRes.data?.problem;
+        setProblem(fetchedProblem);
 
-        // Check if user has attempted this problem
+        let attempted = false;
         try {
-          const submissionsRes = await api.get("/submission/me");
-          const userSubs = submissionsRes.data?.submissions || [];
-          const problemSubs = userSubs.filter((s) => s.problem?.slug === slug);
-          setSubmissions(problemSubs);
-          setUserAttempted(problemSubs.length > 0);
+          const submissionsRes = await api.get(`/submission/${fetchedProblem.id}`);
+          const userSubs = submissionsRes.data?.userSubmissions || [];
+          const locked = submissionsRes.data?.locked ?? true;
+          setSubmissions(userSubs);
+          attempted = !locked;
+          setUserAttempted(!locked);
         } catch {
           setUserAttempted(false);
         }
+        //if user has attempted the problem fetch solutions and discussions
+        if (attempted) {
+          try {
+            const solutionsRes = await api.get(`/solutions/problem/${fetchedProblem.id}`);
+            setSolutions(solutionsRes.data?.solutions || []);
+          } catch {
+            setSolutions([]);
+          }
 
-        // Fetch community solutions
-        try {
-          const solutionsRes = await api.get(`/solutions/problem/${problemRes.data?.problem?.id}`);
-          setSolutions(solutionsRes.data?.solutions || []);
-        } catch {
-          setSolutions([]);
-        }
-
-        // Fetch discussions
-        try {
-          const discussionsRes = await api.get(`/discussions/problem/${problemRes.data?.problem?.id}`);
-          setDiscussions(discussionsRes.data?.discussions || []);
-        } catch {
-          setDiscussions([]);
+          try {
+            const discussionsRes = await api.get(`/discussions/problem/${fetchedProblem.id}`);
+            setDiscussions(discussionsRes.data?.discussions || []);
+          } catch {
+            setDiscussions([]);
+          }
         }
       } catch (err) {
         console.error("Failed to fetch data:", err);
