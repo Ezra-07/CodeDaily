@@ -247,117 +247,7 @@ export default function CommunityPage() {
         </TabsList>
 
         <TabsContent value="solutions" className="space-y-4">
-          {hasAccepted && (
-            <div className="flex justify-between items-center">
-              <h3 className="text-lg font-semibold">Community Solutions</h3>
-              <Button
-                onClick={() => setShowCreateForm(!showCreateForm)}
-                variant="outline"
-                size="sm"
-              >
-                {showCreateForm ? "Cancel" : "Share Your Solution"}
-              </Button>
-            </div>
-          )}
-
-          {showCreateForm && (
-            <Card className="mb-4">
-              <CardContent className="p-4 space-y-4">
-                <div>
-                  <label className="text-sm font-medium mb-1 block">Title</label>
-                  <input
-                    type="text"
-                    value={newSolution.title}
-                    onChange={(e) => setNewSolution({ ...newSolution, title: e.target.value })}
-                    placeholder="e.g., Optimal O(n) Solution using Hash Map"
-                    className="w-full px-3 py-2 border rounded-md bg-background text-sm"
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium mb-1 block">Explanation</label>
-                  <textarea
-                    value={newSolution.explanation}
-                    onChange={(e) => setNewSolution({ ...newSolution, explanation: e.target.value })}
-                    placeholder="Explain your approach and thought process..."
-                    className="w-full px-3 py-2 border rounded-md bg-background text-sm min-h-25"
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium mb-1 block">Code</label>
-                  <textarea
-                    value={newSolution.code}
-                    onChange={(e) => setNewSolution({ ...newSolution, code: e.target.value })}
-                    placeholder="Paste your solution code here..."
-                    className="w-full px-3 py-2 border rounded-md bg-background text-sm font-mono min-h-50"
-                  />
-                </div>
-                <Button
-                  onClick={handleCreateSolution}
-                  disabled={creating}
-                  className="w-full bg-[#22c55e] text-black hover:bg-[#22c55e]/90"
-                >
-                  {creating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                  Post Solution
-                </Button>
-              </CardContent>
-            </Card>
-          )}
-
-          {solutions.length > 0 ? (
-            solutions.map((solution) => (
-              <Card key={solution.id}>
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <CardTitle className="text-base">{solution.title}</CardTitle>
-                      <div className="text-xs text-muted-foreground mt-1">
-                        by {solution.user?.username || "Anonymous"} • {new Date(solution.createdAt).toLocaleDateString()}
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline">{solution.language}</Badge>
-                      {canDeletePost(solution.user?.id) && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDeleteSolution(solution.id)}
-                          disabled={deletingSolutionId === solution.id}
-                          className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                        >
-                          {deletingSolutionId === solution.id ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                          ) : (
-                            <Trash2 className="h-4 w-4" />
-                          )}
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <p className="text-sm">{solution.explanation}</p>
-                  <pre className="p-3 bg-secondary rounded text-sm font-mono overflow-x-auto max-h-96 overflow-y-auto">
-                    <code>{solution.code}</code>
-                  </pre>
-                </CardContent>
-              </Card>
-            ))
-          ) : userAttempted ? (
-            <Card>
-              <CardContent className="p-8 text-center">
-                <Code className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="font-semibold mb-2">No Community Solutions Yet</h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Be the first to share your solution with the community!
-                </p>
-                {hasAccepted && (
-                  <Button onClick={() => setShowCreateForm(true)}>
-                    Share Your Solution
-                  </Button>
-                )}
-              </CardContent>
-            </Card>
-          ) : (
+          {!userAttempted ? (
             <Card>
               <CardContent className="p-8 text-center">
                 <Lock className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
@@ -366,96 +256,125 @@ export default function CommunityPage() {
                 </p>
               </CardContent>
             </Card>
-          )}
-        </TabsContent>
-
-        <TabsContent value="discussions" className="space-y-4">
-          {userAttempted && (
-            <Card>
-              <CardContent className="p-4 space-y-3">
-                <textarea
-                  value={newDiscussion}
-                  onChange={(e) => setNewDiscussion(e.target.value)}
-                  placeholder="Share your thoughts, ask questions, or discuss approaches..."
-                  className="w-full px-3 py-2 border rounded-md bg-background text-sm min-h-20 resize-none"
-                  maxLength={1000}
-                />
+          ) : (
+            <>
+              {hasAccepted && (
                 <div className="flex justify-between items-center">
-                  <span className="text-xs text-muted-foreground">{newDiscussion.length}/1000</span>
+                  <h3 className="text-lg font-semibold">Community Solutions</h3>
                   <Button
-                    onClick={handleCreateDiscussion}
-                    disabled={creatingDiscussion || !newDiscussion.trim()}
+                    onClick={() => setShowCreateForm(!showCreateForm)}
+                    variant="outline"
                     size="sm"
-                    className="bg-[#22c55e] text-black hover:bg-[#22c55e]/90"
                   >
-                    {creatingDiscussion ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                    Post
+                    {showCreateForm ? "Cancel" : "Share Your Solution"}
                   </Button>
                 </div>
-              </CardContent>
-            </Card>
-          )}
+              )}
 
-          {discussions.length > 0 ? (
-            <>
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold">Community Discussions</h3>
-                <Badge variant="outline">
-                  <Users className="h-3 w-3 mr-1" />
-                  {discussions.length} posts
-                </Badge>
-              </div>
-              {discussions.map((discussion) => (
-                <Card key={discussion.id}>
-                  <CardContent className="p-4">
-                    <div className="flex items-start gap-3">
-                      <div className="h-8 w-8 rounded-full bg-[#22c55e]/10 flex items-center justify-center shrink-0">
-                        <span className="text-xs font-bold text-[#22c55e]"> 
-                          {discussion.user?.username?.[0]?.toUpperCase() || "?"}
-                        </span>
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between gap-2 mb-1">
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium">{discussion.user?.username || "Anonymous"}</span>
-                            <span className="text-xs text-muted-foreground">
-                              {new Date(discussion.createdAt).toLocaleDateString()}
-                            </span>
+              {showCreateForm && (
+                <Card className="mb-4">
+                  <CardContent className="p-4 space-y-4">
+                    <div>
+                      <label className="text-sm font-medium mb-1 block">Title</label>
+                      <input
+                        type="text"
+                        value={newSolution.title}
+                        onChange={(e) => setNewSolution({ ...newSolution, title: e.target.value })}
+                        placeholder="e.g., Optimal O(n) Solution using Hash Map"
+                        className="w-full px-3 py-2 border rounded-md bg-background text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium mb-1 block">Explanation</label>
+                      <textarea
+                        value={newSolution.explanation}
+                        onChange={(e) => setNewSolution({ ...newSolution, explanation: e.target.value })}
+                        placeholder="Explain your approach and thought process..."
+                        className="w-full px-3 py-2 border rounded-md bg-background text-sm min-h-25"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium mb-1 block">Code</label>
+                      <textarea
+                        value={newSolution.code}
+                        onChange={(e) => setNewSolution({ ...newSolution, code: e.target.value })}
+                        placeholder="Paste your solution code here..."
+                        className="w-full px-3 py-2 border rounded-md bg-background text-sm font-mono min-h-50"
+                      />
+                    </div>
+                    <Button
+                      onClick={handleCreateSolution}
+                      disabled={creating}
+                      className="w-full bg-[#22c55e] text-black hover:bg-[#22c55e]/90"
+                    >
+                      {creating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                      Post Solution
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
+
+              {solutions.length > 0 ? (
+                solutions.map((solution) => (
+                  <Card key={solution.id}>
+                    <CardHeader className="pb-3">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <CardTitle className="text-base">{solution.title}</CardTitle>
+                          <div className="text-xs text-muted-foreground mt-1">
+                            by {solution.user?.username || "Anonymous"} • {new Date(solution.createdAt).toLocaleDateString()}
                           </div>
-                          {canDeletePost(discussion.userId) && (
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline">{solution.language}</Badge>
+                          {canDeletePost(solution.user?.id) && (
                             <Button
                               variant="ghost"
                               size="icon"
-                              onClick={() => handleDeleteDiscussion(discussion.id)}
-                              disabled={deletingDiscussionId === discussion.id}
-                              className="h-7 w-7 text-muted-foreground hover:text-destructive"
+                              onClick={() => handleDeleteSolution(solution.id)}
+                              disabled={deletingSolutionId === solution.id}
+                              className="h-8 w-8 text-muted-foreground hover:text-destructive"
                             >
-                              {deletingDiscussionId === discussion.id ? (
-                                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                              {deletingSolutionId === solution.id ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
                               ) : (
-                                <Trash2 className="h-3.5 w-3.5" />
+                                <Trash2 className="h-4 w-4" />
                               )}
                             </Button>
                           )}
                         </div>
-                        <p className="text-sm whitespace-pre-wrap">{discussion.content}</p>
                       </div>
-                    </div>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <p className="text-sm">{solution.explanation}</p>
+                      <pre className="p-3 bg-secondary rounded text-sm font-mono overflow-x-auto max-h-96 overflow-y-auto">
+                        <code>{solution.code}</code>
+                      </pre>
+                    </CardContent>
+                  </Card>
+                ))
+              ) : (
+                <Card>
+                  <CardContent className="p-8 text-center">
+                    <Code className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="font-semibold mb-2">No Community Solutions Yet</h3>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Be the first to share your solution with the community!
+                    </p>
+                    {hasAccepted && (
+                      <Button onClick={() => setShowCreateForm(true)}>
+                        Share Your Solution
+                      </Button>
+                    )}
                   </CardContent>
                 </Card>
-              ))}
+              )}
             </>
-          ) : userAttempted ? (
-            <Card>
-              <CardContent className="p-8 text-center">
-                <MessageSquare className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="font-semibold mb-2">No Discussions Yet</h3>
-                <p className="text-sm text-muted-foreground">
-                  Be the first to start a discussion!
-                </p>
-              </CardContent>
-            </Card>
-          ) : (
+          )}
+        </TabsContent>
+
+        <TabsContent value="discussions" className="space-y-4">
+          {!userAttempted ? (
             <Card>
               <CardContent className="p-8 text-center">
                 <Lock className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
@@ -464,6 +383,93 @@ export default function CommunityPage() {
                 </p>
               </CardContent>
             </Card>
+          ) : (
+            <>
+              <Card>
+                <CardContent className="p-4 space-y-3">
+                  <textarea
+                    value={newDiscussion}
+                    onChange={(e) => setNewDiscussion(e.target.value)}
+                    placeholder="Share your thoughts, ask questions, or discuss approaches..."
+                    className="w-full px-3 py-2 border rounded-md bg-background text-sm min-h-20 resize-none"
+                    maxLength={1000}
+                  />
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-muted-foreground">{newDiscussion.length}/1000</span>
+                    <Button
+                      onClick={handleCreateDiscussion}
+                      disabled={creatingDiscussion || !newDiscussion.trim()}
+                      size="sm"
+                      className="bg-[#22c55e] text-black hover:bg-[#22c55e]/90"
+                    >
+                      {creatingDiscussion ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                      Post
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {discussions.length > 0 ? (
+                <>
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold">Community Discussions</h3>
+                    <Badge variant="outline">
+                      <Users className="h-3 w-3 mr-1" />
+                      {discussions.length} posts
+                    </Badge>
+                  </div>
+                  {discussions.map((discussion) => (
+                    <Card key={discussion.id}>
+                      <CardContent className="p-4">
+                        <div className="flex items-start gap-3">
+                          <div className="h-8 w-8 rounded-full bg-[#22c55e]/10 flex items-center justify-center shrink-0">
+                            <span className="text-xs font-bold text-[#22c55e]">
+                              {discussion.user?.username?.[0]?.toUpperCase() || "?"}
+                            </span>
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-center justify-between gap-2 mb-1">
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium">{discussion.user?.username || "Anonymous"}</span>
+                                <span className="text-xs text-muted-foreground">
+                                  {new Date(discussion.createdAt).toLocaleDateString()}
+                                </span>
+                              </div>
+                              {canDeletePost(discussion.userId) && (
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => handleDeleteDiscussion(discussion.id)}
+                                  disabled={deletingDiscussionId === discussion.id}
+                                  className="h-7 w-7 text-muted-foreground hover:text-destructive"
+                                >
+                                  {deletingDiscussionId === discussion.id ? (
+                                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                  ) : (
+                                    <Trash2 className="h-3.5 w-3.5" />
+                                  )}
+                                </Button>
+                              )}
+                            </div>
+                            <p className="text-sm whitespace-pre-wrap">{discussion.content}</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </>
+              ) : (
+                <Card>
+                  <CardContent className="p-8 text-center">
+                    <MessageSquare className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="font-semibold mb-2">No Discussions Yet</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Be the first to start a discussion!
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
+            </>
           )}
         </TabsContent>
       </Tabs>
